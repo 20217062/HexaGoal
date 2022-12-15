@@ -5,14 +5,16 @@ using UnityEngine;
 public class HexMaster : MonoBehaviour {
     #region •Ï”
     public int[,] _hex;
-    private int[] _card;
+    public int[,] _card;
     private int _playerPointX;
     private int _playerPointY;
     private int _hexInputArray;
     private int _squareInputArray;
-    private int _inputType;
+    public int _inputType;
     private int _order;
+    private int _cast;
     private bool _isFin = false;
+    private int _reference;
     [SerializeField] private GameObject _player;
     #endregion
     void Start() {
@@ -30,7 +32,7 @@ public class HexMaster : MonoBehaviour {
         InputHexSystem();
         InputSquareSystem();
         if (Input.GetButtonDown("Submit")) {
-            if (_hexInputArray != 0) {
+            if (_hexInputArray != 0 || _inputType == 3) {
                 switch (_inputType) {
                     case 1:
                         Attack();//’ÊíUŒ‚
@@ -38,9 +40,12 @@ public class HexMaster : MonoBehaviour {
                         _order = 1;
                         break;
                     case 2:
-                        Spell();//“Á‹Z
-                        _inputType = 0;
-                        _order = 1;
+                        SpellSelect();//“Á‹Z
+                        if (_card[_cast, 3] == 1) {
+                            _inputType = 2;
+                            break;
+                        }
+                        _inputType = 5;
                         break;
                     case 3:
                         Rest();//‹xŒe
@@ -50,6 +55,12 @@ public class HexMaster : MonoBehaviour {
                     case 4:
                         Move();//ˆÚ“®
                         _inputType = 0;
+                        _order = 1;
+                        break;
+                    case 5:
+                        SpellCast();
+                        _inputType = 0;
+                        _order = 1;
                         break;
                     default:
                         _inputType = _squareInputArray;
@@ -118,11 +129,13 @@ public class HexMaster : MonoBehaviour {
                     break;
                 } else if (_playerPointX + _playerPointY + 2 > 25) {
                     break;
-                } else {
+                } else if(_hex[_playerPointX + 1,_playerPointY + 1] == 0) {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX += 1;
                     _playerPointY += 1;
                     _order = 1;
+                    _hex[_playerPointX, _playerPointY] = 5;
+                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             case 2:
@@ -131,10 +144,12 @@ public class HexMaster : MonoBehaviour {
                     break;
                 } else if (_playerPointX + _playerPointY + 2 > 25 || _playerPointX - _playerPointY == 15) {
                     break;
-                } else {
+                } else if (_hex[_playerPointX + 2, _playerPointY] == 0) {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX += 2;
                     _order = 1;
+                    _hex[_playerPointX, _playerPointY] = 5;
+                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             case 3:
@@ -143,11 +158,13 @@ public class HexMaster : MonoBehaviour {
                     break;
                 } else if (_playerPointX - _playerPointY == 15) {
                     break;
-                } else {
+                } else if (_hex[_playerPointX + 1, _playerPointY - 1] == 0) {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX += 1;
                     _playerPointY -= 1;
                     _order = 1;
+                    _hex[_playerPointX, _playerPointY] = 5;
+                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             case 4:
@@ -156,11 +173,13 @@ public class HexMaster : MonoBehaviour {
                     break;
                 } else if (_playerPointX + _playerPointY - 2 < 5) {
                     break;
-                } else {
+                } else if (_hex[_playerPointX - 1, _playerPointY - 1] == 0) {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX -= 1;
                     _playerPointY -= 1;
                     _order = 1;
+                    _hex[_playerPointX, _playerPointY] = 5;
+                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             case 5:
@@ -169,10 +188,12 @@ public class HexMaster : MonoBehaviour {
                     break;
                 } else if (_playerPointX + _playerPointY - 2 < 5 || _playerPointY - _playerPointX == 5) {
                     break;
-                } else {
+                } else if (_hex[_playerPointX - 2, _playerPointY] == 0) {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX -= 2;
                     _order = 1;
+                    _hex[_playerPointX, _playerPointY] = 5;
+                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             case 6:
@@ -181,25 +202,27 @@ public class HexMaster : MonoBehaviour {
                     break;
                 } else if (_playerPointY - _playerPointX == 5) {
                     break;
-                } else {
+                } else if (_hex[_playerPointX - 1, _playerPointY + 1] == 0) {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX -= 1;
                     _playerPointY += 1;
                     _order = 1;
+                    _hex[_playerPointX, _playerPointY] = 5;
+                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             default:
                 break;
         }
-        _hex[_playerPointX, _playerPointY] = 5;
-        _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
     }
     public void Attack() {
-        int reference;
         switch (_hexInputArray) {
             case 1:
-                reference = _hex[_playerPointX + 1, _playerPointY + 1];
-                if (reference == 2 || reference == 3) {
+                if (_playerPointX + 1 > 20 || _playerPointY + 1 > 10) {
+                    break;
+                }
+                _reference = _hex[_playerPointX + 1, _playerPointY + 1];
+                if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + 1
                         || children.GetComponent<CharacterStat>()._pointY == _playerPointY + 1) {
@@ -209,8 +232,11 @@ public class HexMaster : MonoBehaviour {
                 }
                 break;
             case 2:
-                reference = _hex[_playerPointX + 2, _playerPointY];
-                if (reference == 2 || reference == 3) {
+                if (_playerPointX + 2 > 20) {
+                    break;
+                }
+                _reference = _hex[_playerPointX + 2, _playerPointY];
+                if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + 2
                         || children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
@@ -220,8 +246,11 @@ public class HexMaster : MonoBehaviour {
                 }
                 break;
             case 3:
-                reference = _hex[_playerPointX + 1, _playerPointY - 1];
-                if (reference == 2 || reference == 3) {
+                if (_playerPointX + 1 > 20 || _playerPointY - 1 < 0) {
+                    break;
+                }
+                _reference = _hex[_playerPointX + 1, _playerPointY - 1];
+                if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + 1
                         || children.GetComponent<CharacterStat>()._pointY == _playerPointY - 1) {
@@ -231,8 +260,11 @@ public class HexMaster : MonoBehaviour {
                 }
                 break;
             case 4:
-                reference = _hex[_playerPointX - 1, _playerPointY - 1];
-                if (reference == 2 || reference == 3) {
+                if (_playerPointX - 1 > 0 || _playerPointY - 1 > 0) {
+                    break;
+                }
+                _reference = _hex[_playerPointX - 1, _playerPointY - 1];
+                if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - 1
                         || children.GetComponent<CharacterStat>()._pointY == _playerPointY - 1) {
@@ -242,8 +274,11 @@ public class HexMaster : MonoBehaviour {
                 }
                 break;
             case 5:
-                reference = _hex[_playerPointX - 2, _playerPointY];
-                if (reference == 2 || reference == 3) {
+                if (_playerPointX - 2 < 0) {
+                    break;
+                }
+                _reference = _hex[_playerPointX - 2, _playerPointY];
+                if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - 2
                         || children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
@@ -253,8 +288,11 @@ public class HexMaster : MonoBehaviour {
                 }
                 break;
             case 6:
-                reference = _hex[_playerPointX - 1, _playerPointY + 1];
-                if (reference == 2 || reference == 3) {
+                if (_playerPointX - 1 < 0 || _playerPointY + 1 > 10) {
+                    break;
+                }
+                _reference = _hex[_playerPointX - 1, _playerPointY + 1];
+                if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - 1
                         || children.GetComponent<CharacterStat>()._pointY == _playerPointY + 1) {
@@ -267,11 +305,115 @@ public class HexMaster : MonoBehaviour {
                 break;
         }
     }
-    public void Spell() {
-
+    public void SpellSelect() {
+        _cast = _squareInputArray - 1;
+        if (_card[_cast, 3] == 1) {
+            print("This spell's Already cast,Take a refresh.");
+            _inputType = 2;
+            return;
+        }
+        print("Cast!");
+    }
+    private void SpellCast() {
+        switch (_hexInputArray) {
+            case 1:
+                if (_playerPointX + _card[_cast, 1] > 20 || _playerPointY + _card[_cast, 1] > 10) {
+                    break;
+                }
+                _reference = _hex[_playerPointX + _card[_cast, 1], _playerPointY + _card[_cast, 1]];
+                if (_reference == 2 || _reference == 3 || _reference == 5) {
+                    foreach (Transform children in this.transform) {
+                        if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + _card[_cast, 1]
+                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY + _card[_cast, 1]) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _card[_cast, 3] = 1;
+                        }
+                    }
+                }
+                break;
+            case 2:
+                if (_playerPointX + (_card[_cast, 1] * 2) > 20) {
+                    break;
+                }
+                _reference = _hex[_playerPointX + (_card[_cast, 1] * 2), _playerPointY];
+                if (_reference == 2 || _reference == 3 || _reference == 5) {
+                    foreach (Transform children in this.transform) {
+                        if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + (_card[_cast, 1] * 2)
+                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _card[_cast, 3] = 1;
+                        }
+                    }
+                }
+                break;
+            case 3:
+                if (_playerPointX + _card[_cast, 1] > 20 || _playerPointY - _card[_cast, 1] < 0) {
+                    break;
+                }
+                _reference = _hex[_playerPointX + _card[_cast, 1], _playerPointY - _card[_cast, 1]];
+                if (_reference == 2 || _reference == 3 || _reference == 5) {
+                    foreach (Transform children in this.transform) {
+                        if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + _card[_cast, 1]
+                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY - _card[_cast, 1]) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _card[_cast, 3] = 1;
+                        }
+                    }
+                }
+                break;
+            case 4:
+                if (_playerPointX - _card[_cast, 1] < 0 || _playerPointY - _card[_cast, 1] < 0) {
+                    break;
+                }
+                _reference = _hex[_playerPointX - _card[_cast, 1], _playerPointY - _card[_cast, 1]];
+                if (_reference == 2 || _reference == 3 || _reference == 5) {
+                    foreach (Transform children in this.transform) {
+                        if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - _card[_cast, 1]
+                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY - _card[_cast, 1]) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _card[_cast, 3] = 1;
+                        }
+                    }
+                }
+                break;
+            case 5:
+                if (_playerPointX - (_card[_cast, 1] * 2) < 0) {
+                    break;
+                }
+                _reference = _hex[_playerPointX - (_card[_cast, 1] * 2), _playerPointY];
+                if (_reference == 2 || _reference == 3 || _reference == 5) {
+                    foreach (Transform children in this.transform) {
+                        if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - (_card[_cast, 1] * 2)
+                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _card[_cast, 3] = 1;
+                        }
+                    }
+                }
+                break;
+            case 6:
+                if (_playerPointX - _card[_cast, 1] < 0 || _playerPointY + _card[_cast, 1] > 10) {
+                    break;
+                }
+                _reference = _hex[_playerPointX - _card[_cast, 1], _playerPointY + _card[_cast, 1]];
+                if (_reference == 2 || _reference == 3 || _reference == 5) {
+                    foreach (Transform children in this.transform) {
+                        if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - _card[_cast, 1]
+                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY + _card[_cast, 1]) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _card[_cast, 3] = 1;
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
     }
     private void Rest() {
         _player.GetComponent<CharacterStat>()._hp += _player.GetComponent<CharacterStat>()._hpMax / 10;
-        //ƒŠƒtƒŒƒbƒVƒ…
+        for (int i = 0;i < 4;i++) {
+            _card[i, 3] = 0;
+        }
     }
 }
