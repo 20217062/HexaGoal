@@ -121,7 +121,7 @@ public class HexMaster : MonoBehaviour {
             }
         }
     }
-    public void Move() {
+    private void Move() {
         switch (_hexInputArray) {
             case 1:
                 //”z—ñ‚ð’´‰ß‚·‚éê‡‚Íˆ—‚ð‚µ‚È‚¢
@@ -215,7 +215,7 @@ public class HexMaster : MonoBehaviour {
                 break;
         }
     }
-    public void Attack() {
+    private void Attack() {
         switch (_hexInputArray) {
             case 1:
                 if (_playerPointX + 1 > 20 || _playerPointY + 1 > 10) {
@@ -305,7 +305,7 @@ public class HexMaster : MonoBehaviour {
                 break;
         }
     }
-    public void SpellSelect() {
+    private void SpellSelect() {
         _cast = _squareInputArray - 1;
         if (_card[_cast, 3] == 1) {
             print("This spell's Already cast,Take a refresh.");

@@ -12,6 +12,7 @@ public class CharacterStat : MonoBehaviour
     [SerializeField] public int _attack;//攻撃力
     [SerializeField] public int _defense;//防御力
     [SerializeField] TextAsset _deckData;
+    [SerializeField] private int _scanSubject = 5;//対象オブジェクトタイプ
     public int[,] _cardData;
     private string[] _allData;
     private string _deck;
@@ -19,6 +20,8 @@ public class CharacterStat : MonoBehaviour
     public int _pointX;//X座標
     public int _pointY;//Y座標
     public int _count;//行動回数ストック
+    private int _rand;
+    private GameObject _referenceObject;
     private void Start() {
         transform.position = new Vector2((_pointX - 10) * 1.28f, (_pointY - 5) * 1.448f);
         _allData = _deckData.text.Split('\n');
@@ -59,22 +62,19 @@ public class CharacterStat : MonoBehaviour
             default:
                 break;
         }
-        //_card = _player.GetComponent<CharacterStat>()._cardData;
     }
     private void Update() {
         if (_count > 0) {
             if (_hp <= 0) {
                 gameObject.SetActive(false);//HPが0以下なら無効化
-            } else if (_hp > _hpMax) {
-                _hp = _hpMax;//HPが最大値を上回っているなら最大HPに補正
             }
             switch (_characterType) {
                 case 2://敵
-                    //行動
+                    Action();
                     //ターンエンド処理
                     break;
                 case 3://味方
-                    //行動
+                    Action();
                     //ターンエンド処理
                     break;
                 case 5://プレイヤー
@@ -83,7 +83,178 @@ public class CharacterStat : MonoBehaviour
                 default:
                     break;
             }
+            if (_hp > _hpMax) {
+                _hp = _hpMax;//HPが最大値を上回っているなら最大HPに補正
+            }
             _count -= 1;
+        }
+    }
+    private void Action() {
+        bool restflag = true;
+        for (int i = 0; i < 4; i++) {
+            if (_cardData[i,3] == 0) {
+                restflag = false;
+            }
+        }
+        if (restflag) {
+            Rest();
+            return;
+        } else {
+            restflag = true;
+        }
+        foreach (GameObject scanData in GameObject.FindGameObjectsWithTag("Character")) {
+            if (scanData.GetComponent<CharacterStat>()._characterType == _scanSubject) {
+                for (int i = 0; i < 4; i++) {
+                    if (_cardData[i, 3] == 0) {
+                        if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == _cardData[i, 1]
+                        && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == _cardData[i, 1]) {
+                            _referenceObject = scanData;
+                            print("Spell?");
+                            Spell(i);
+                            return;
+                        }
+                    }
+                }
+                print(Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX));
+                print(Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY));
+                if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == 1 && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == 1) {
+                    _referenceObject = scanData;
+                    print("Attack?");
+                    Attack();
+                    return;
+                }
+            }
+        }
+        _rand = Random.Range(1,7);
+        Move(_rand);
+    }
+    private void Attack() {
+        for (int i = -2;i <= 2;i++) {
+            for (int j = -1;j <= 1;j++) {
+                if (Mathf.Abs(i) != 2 && _master._hex[_pointX + i,_pointY + j] == _scanSubject) {
+                    _referenceObject.GetComponent<CharacterStat>()._hp -= 10 + PlayerStatus._attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                    return;
+                }
+                if (_master._hex[_pointX + i, _pointY] == _scanSubject) {
+                    _referenceObject.GetComponent<CharacterStat>()._hp -= 10 + PlayerStatus._attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                    return;
+                }
+            }
+        }
+    }
+    private void Spell(int cast) {
+        for (int i = -2; i <= 2; i++) {
+            for (int j = -1; j <= 1; j++) {
+                if (_pointX + (i * _cardData[cast,1]) < 0 && _pointX + (i * _cardData[cast, 1]) > 20
+                && _pointY + (j * _cardData[cast, 1]) < 0 && _pointY + (j * _cardData[cast, 1]) > 10) {
+                    if (Mathf.Abs(i) != 2 && _master._hex[_pointX + (i * _cardData[cast, 1]), _pointY + (j * _cardData[cast, 1])] == _scanSubject) {
+                        _referenceObject.GetComponent<CharacterStat>()._hp += _cardData[cast, 2] + PlayerStatus._attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                        _cardData[cast, 3] = 1;
+                        return;
+                    }
+                }
+                if (_pointY + (j * _cardData[cast, 1]) < 0 && _pointY + (j * _cardData[cast, 1]) > 10) {
+                    if (_master._hex[_pointX + (i * _cardData[cast, 1]), _pointY] == _scanSubject) {
+                        _referenceObject.GetComponent<CharacterStat>()._hp += _cardData[cast, 2] + PlayerStatus._attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                        _cardData[cast, 3] = 1;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    private void Rest() {
+        _hp += _hpMax / 10;
+        for (int i = 0; i < 4; i++) {
+            _cardData[i, 3] = 0;
+        }
+    }
+    private void Move(int random) {
+        switch (random) {
+            case 1:
+                //配列を超過する場合は処理をしない
+                if (_pointX + 1 > 20 || _pointY + 1 > 10) {
+                    break;
+                } else if (_pointX + _pointY + 2 > 25) {
+                    break;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] == 0) {
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                    _pointX += 1;
+                    _pointY += 1;
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
+                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
+                }
+                break;
+            case 2:
+                //配列を超過する場合は処理をしない
+                if (_pointX + 2 > 20) {
+                    break;
+                } else if (_pointX + _pointY + 2 > 25 || _pointX - _pointY == 15) {
+                    break;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX + 2, _pointY] == 0) {
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                    _pointX += 2;
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
+                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
+                }
+                break;
+            case 3:
+                //配列を超過する場合は処理をしない
+                if (_pointX + 1 > 20 || _pointY - 1 < 0) {
+                    break;
+                } else if (_pointX - _pointY == 15) {
+                    break;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX + 1, _pointY - 1] == 0) {
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                    _pointX += 1;
+                    _pointY -= 1;
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
+                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
+                }
+                break;
+            case 4:
+                //配列を超過する場合は処理をしない
+                if (_pointX - 1 < 0 || _pointY - 1 < 0) {
+                    break;
+                } else if (_pointX + _pointY - 2 < 5) {
+                    break;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX - 1, _pointY - 1] == 0) {
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                    _pointX -= 1;
+                    _pointY -= 1;
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
+                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
+                }
+                break;
+            case 5:
+                //配列を超過する場合は処理をしない
+                if (_pointX - 2 < 0) {
+                    break;
+                } else if (_pointX + _pointY - 2 < 5 || _pointY - _pointX == 5) {
+                    break;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX - 2, _pointY] == 0) {
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                    _pointX -= 2;
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
+                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
+                }
+                break;
+            case 6:
+                //配列を超過する場合は処理をしない
+                if (_pointX - 1 < 0 || _pointY + 1 > 10) {
+                    break;
+                } else if (_pointY - _pointX == 5) {
+                    break;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX - 1, _pointY + 1] == 0) {
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                    _pointX -= 1;
+                    _pointY += 1;
+                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 5;
+                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
+                }
+                break;
+            default:
+                break;
         }
     }
 }
