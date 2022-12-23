@@ -38,10 +38,10 @@ public class CharacterStat : MonoBehaviour
         }
         switch (_characterType) {
             case 2://ìG
-                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 2;
+                _master.GetComponent<HexMaster>()._hex[_pointX, _pointY] = 2;
                 break;
             case 3://ñ°ï˚
-                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 3;
+                _master.GetComponent<HexMaster>()._hex[_pointX, _pointY] = 3;
                 break;
             case 5://ÉvÉåÉCÉÑÅ[
                 _level = PlayerStatus._revel;
@@ -106,20 +106,61 @@ public class CharacterStat : MonoBehaviour
             if (scanData.GetComponent<CharacterStat>()._characterType == _scanSubject) {
                 for (int i = 0; i < 4; i++) {
                     if (_cardData[i, 3] == 0) {
-                        if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == _cardData[i, 1]
-                        && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == _cardData[i, 1]) {
-                            _referenceObject = scanData;
-                            print("Spell?");
-                            Spell(i);
-                            return;
+                        switch (_cardData[i, 0]) {
+                            case 1:
+                                Spell(i);
+                                break;
+                            case 2:
+                                if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == 1
+                                && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == 1) {
+                                    _referenceObject = scanData;
+                                    Spell(i);
+                                    return;
+                                } else if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == 2
+                                && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == 0) {
+                                    _referenceObject = scanData;
+                                    Spell(i);
+                                    return;
+                                }
+                                break;
+                            case 3:
+                                if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) <= _cardData[i, 1]
+                                && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) <= _cardData[i, 1]
+                                && Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY)) {
+                                    _referenceObject = scanData;
+                                    Spell(i);
+                                    return;
+                                } else if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) <= (_cardData[i, 1] * 2)
+                                && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == 0) {
+                                    _referenceObject = scanData;
+                                    Spell(i);
+                                    return;
+                                }
+                                break;
+                            case 4:
+                                if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == _cardData[i, 1]
+                                 && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == _cardData[i, 1]) {
+                                    _referenceObject = scanData;
+                                    Spell(i);
+                                    return;
+                                } else if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == (_cardData[i, 1] * 2)
+                                && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == 0) {
+                                    _referenceObject = scanData;
+                                    Spell(i);
+                                    return;
+                                }
+                                break;
                         }
                     }
                 }
-                print(Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX));
-                print(Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY));
-                if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == 1 && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == 1) {
+                if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == 1
+                && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == 1) {
                     _referenceObject = scanData;
-                    print("Attack?");
+                    Attack();
+                    return;
+                } else if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == 2 
+                && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == 0) {
+                    _referenceObject = scanData;
                     Attack();
                     return;
                 }
@@ -129,39 +170,24 @@ public class CharacterStat : MonoBehaviour
         Move(_rand);
     }
     private void Attack() {
-        for (int i = -2;i <= 2;i++) {
-            for (int j = -1;j <= 1;j++) {
-                if (Mathf.Abs(i) != 2 && _master._hex[_pointX + i,_pointY + j] == _scanSubject) {
-                    _referenceObject.GetComponent<CharacterStat>()._hp -= 10 + PlayerStatus._attack - _referenceObject.GetComponent<CharacterStat>()._defense;
-                    return;
-                }
-                if (_master._hex[_pointX + i, _pointY] == _scanSubject) {
-                    _referenceObject.GetComponent<CharacterStat>()._hp -= 10 + PlayerStatus._attack - _referenceObject.GetComponent<CharacterStat>()._defense;
-                    return;
-                }
-            }
-        }
+        _referenceObject.GetComponent<CharacterStat>()._hp -= 10 + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
     }
     private void Spell(int cast) {
-        for (int i = -2; i <= 2; i++) {
-            for (int j = -1; j <= 1; j++) {
-                if (_pointX + (i * _cardData[cast,1]) < 0 && _pointX + (i * _cardData[cast, 1]) > 20
-                && _pointY + (j * _cardData[cast, 1]) < 0 && _pointY + (j * _cardData[cast, 1]) > 10) {
-                    if (Mathf.Abs(i) != 2 && _master._hex[_pointX + (i * _cardData[cast, 1]), _pointY + (j * _cardData[cast, 1])] == _scanSubject) {
-                        _referenceObject.GetComponent<CharacterStat>()._hp += _cardData[cast, 2] + PlayerStatus._attack - _referenceObject.GetComponent<CharacterStat>()._defense;
-                        _cardData[cast, 3] = 1;
-                        return;
-                    }
-                }
-                if (_pointY + (j * _cardData[cast, 1]) < 0 && _pointY + (j * _cardData[cast, 1]) > 10) {
-                    if (_master._hex[_pointX + (i * _cardData[cast, 1]), _pointY] == _scanSubject) {
-                        _referenceObject.GetComponent<CharacterStat>()._hp += _cardData[cast, 2] + PlayerStatus._attack - _referenceObject.GetComponent<CharacterStat>()._defense;
-                        _cardData[cast, 3] = 1;
-                        return;
-                    }
-                }
-            }
+        switch (_cardData[cast, 0]) {
+            case 1:
+                _hp += _cardData[cast, 2];
+                break;
+            case 2:
+                _referenceObject.GetComponent<CharacterStat>()._hp += _cardData[cast, 2] + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                break;
+            case 3:
+                _referenceObject.GetComponent<CharacterStat>()._hp += _cardData[cast, 2] + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                break;
+            case 4:
+                _referenceObject.GetComponent<CharacterStat>()._hp += _cardData[cast, 2] + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                break;
         }
+        _cardData[cast, 3] = 1;
     }
     private void Rest() {
         _hp += _hpMax / 10;

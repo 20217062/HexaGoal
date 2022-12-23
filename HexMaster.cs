@@ -133,7 +133,8 @@ public class HexMaster : MonoBehaviour {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX += 1;
                     _playerPointY += 1;
-                    _order = 1;
+                    _player.GetComponent<CharacterStat>()._pointX += 1;
+                    _player.GetComponent<CharacterStat>()._pointY += 1;
                     _hex[_playerPointX, _playerPointY] = 5;
                     _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
@@ -147,6 +148,7 @@ public class HexMaster : MonoBehaviour {
                 } else if (_hex[_playerPointX + 2, _playerPointY] == 0) {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX += 2;
+                    _player.GetComponent<CharacterStat>()._pointX += 2;
                     _order = 1;
                     _hex[_playerPointX, _playerPointY] = 5;
                     _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
@@ -162,6 +164,8 @@ public class HexMaster : MonoBehaviour {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX += 1;
                     _playerPointY -= 1;
+                    _player.GetComponent<CharacterStat>()._pointX += 1;
+                    _player.GetComponent<CharacterStat>()._pointY -= 1;
                     _order = 1;
                     _hex[_playerPointX, _playerPointY] = 5;
                     _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
@@ -177,6 +181,8 @@ public class HexMaster : MonoBehaviour {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX -= 1;
                     _playerPointY -= 1;
+                    _player.GetComponent<CharacterStat>()._pointX -= 1;
+                    _player.GetComponent<CharacterStat>()._pointY -= 1;
                     _order = 1;
                     _hex[_playerPointX, _playerPointY] = 5;
                     _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
@@ -191,6 +197,7 @@ public class HexMaster : MonoBehaviour {
                 } else if (_hex[_playerPointX - 2, _playerPointY] == 0) {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX -= 2;
+                    _player.GetComponent<CharacterStat>()._pointX -= 2;
                     _order = 1;
                     _hex[_playerPointX, _playerPointY] = 5;
                     _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
@@ -206,6 +213,8 @@ public class HexMaster : MonoBehaviour {
                     _hex[_playerPointX, _playerPointY] = 0;
                     _playerPointX -= 1;
                     _playerPointY += 1;
+                    _player.GetComponent<CharacterStat>()._pointX -= 1;
+                    _player.GetComponent<CharacterStat>()._pointY += 1;
                     _order = 1;
                     _hex[_playerPointX, _playerPointY] = 5;
                     _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
