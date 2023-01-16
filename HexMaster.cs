@@ -12,7 +12,7 @@ public class HexMaster : MonoBehaviour {
     private int _squareInputArray;
     public int _inputType;
     private int _order;
-    private int _cast;
+    public int _cast;
     private bool _isFin = false;
     private int _reference;
     [SerializeField] private GameObject _player;
@@ -119,6 +119,8 @@ public class HexMaster : MonoBehaviour {
             } else if (instantInput > 45 && instantInput <= 135) {
                 _squareInputArray = 4;
             }
+        } else {
+            _squareInputArray = 0;
         }
     }
     private void Move() {
@@ -136,7 +138,6 @@ public class HexMaster : MonoBehaviour {
                     _player.GetComponent<CharacterStat>()._pointX += 1;
                     _player.GetComponent<CharacterStat>()._pointY += 1;
                     _hex[_playerPointX, _playerPointY] = 5;
-                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             case 2:
@@ -151,7 +152,6 @@ public class HexMaster : MonoBehaviour {
                     _player.GetComponent<CharacterStat>()._pointX += 2;
                     _order = 1;
                     _hex[_playerPointX, _playerPointY] = 5;
-                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             case 3:
@@ -168,7 +168,6 @@ public class HexMaster : MonoBehaviour {
                     _player.GetComponent<CharacterStat>()._pointY -= 1;
                     _order = 1;
                     _hex[_playerPointX, _playerPointY] = 5;
-                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             case 4:
@@ -185,7 +184,6 @@ public class HexMaster : MonoBehaviour {
                     _player.GetComponent<CharacterStat>()._pointY -= 1;
                     _order = 1;
                     _hex[_playerPointX, _playerPointY] = 5;
-                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             case 5:
@@ -200,7 +198,6 @@ public class HexMaster : MonoBehaviour {
                     _player.GetComponent<CharacterStat>()._pointX -= 2;
                     _order = 1;
                     _hex[_playerPointX, _playerPointY] = 5;
-                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             case 6:
@@ -217,7 +214,6 @@ public class HexMaster : MonoBehaviour {
                     _player.GetComponent<CharacterStat>()._pointY += 1;
                     _order = 1;
                     _hex[_playerPointX, _playerPointY] = 5;
-                    _player.transform.position = new Vector2(1.28f * (_playerPointX - 10), 1.448f * (_playerPointY - 5));
                 }
                 break;
             default:

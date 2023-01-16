@@ -88,6 +88,9 @@ public class CharacterStat : MonoBehaviour
             }
             _count -= 1;
         }
+        if (transform.position.x != 1.28f * (_pointX - 10) || transform.position.y != 1.448f * (_pointY - 5)) {
+            transform.position = Vector2.MoveTowards(transform.position, new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5)), 10 * Time.deltaTime);
+        }
     }
     private void Action() {
         bool restflag = true;
@@ -208,7 +211,6 @@ public class CharacterStat : MonoBehaviour
                     _pointX += 1;
                     _pointY += 1;
                     GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
-                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
                 }
                 break;
             case 2:
@@ -221,7 +223,6 @@ public class CharacterStat : MonoBehaviour
                     GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
                     _pointX += 2;
                     GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
-                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
                 }
                 break;
             case 3:
@@ -235,7 +236,6 @@ public class CharacterStat : MonoBehaviour
                     _pointX += 1;
                     _pointY -= 1;
                     GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
-                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
                 }
                 break;
             case 4:
@@ -249,7 +249,6 @@ public class CharacterStat : MonoBehaviour
                     _pointX -= 1;
                     _pointY -= 1;
                     GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
-                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
                 }
                 break;
             case 5:
@@ -262,7 +261,6 @@ public class CharacterStat : MonoBehaviour
                     GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
                     _pointX -= 2;
                     GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
-                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
                 }
                 break;
             case 6:
@@ -275,8 +273,6 @@ public class CharacterStat : MonoBehaviour
                     GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
                     _pointX -= 1;
                     _pointY += 1;
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 5;
-                    transform.position = new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5));
                 }
                 break;
             default:
