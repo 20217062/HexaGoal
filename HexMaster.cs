@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class HexMaster : MonoBehaviour {
-    #region 変数
+    #region バトル変数
     public int[,] _hex;
     public int[,] _card;
     private int _playerPointX;
@@ -17,7 +18,14 @@ public class HexMaster : MonoBehaviour {
     private int _reference;
     [SerializeField] private GameObject _player;
     #endregion
-    void Start() {
+    #region スコア変数
+    public int _score;
+    private int _turn;
+    private int _addDamage;
+    public int _getDamage;
+    public int _breakEnemy;
+    #endregion
+    void Awake() {
         _playerPointX = _player.GetComponent<CharacterStat>()._pointX;
         _playerPointY = _player.GetComponent<CharacterStat>()._pointY;
         _hex = new int[21, 11];//初期化
@@ -31,6 +39,31 @@ public class HexMaster : MonoBehaviour {
     private void Update() {
         InputHexSystem();
         InputSquareSystem();
+        if (_order > 0) {
+            foreach (Transform children in this.transform) {
+                children.GetComponent<CharacterStat>()._count++;
+                if (children.GetComponent<CharacterStat>()._characterType == 2
+                && children.gameObject.activeSelf == true) {
+                    _isFin = false;
+                }
+            }
+            if (_isFin) {
+                print("congratulations!!!");
+                Score();
+                print(_score);
+                SceneManager.LoadScene("Interlude");
+            } else {
+                _isFin = true;
+            }
+            _turn++;
+            _order--;
+        }
+        if (_player.GetComponent<CharacterStat>()._hp <= 0) {
+            Score();
+            print(_score);
+            print("Game Over");
+            SceneManager.LoadScene("GameOver");
+        }
         if (Input.GetButtonDown("Submit")) {
             if (_hexInputArray != 0 || _inputType == 3) {
                 switch (_inputType) {
@@ -70,21 +103,6 @@ public class HexMaster : MonoBehaviour {
             }
         } else if (Input.GetButtonDown("Cancel")) {
             _inputType = 0;
-        }
-        if (_order > 0) {
-            foreach (Transform children in this.transform) {
-                children.GetComponent<CharacterStat>()._count++;
-                if (children.GetComponent<CharacterStat>()._characterType == 2 
-                && children.gameObject.activeSelf == true) {
-                    _isFin = false;
-                }
-            }
-            if (_isFin) {
-                print("congratulations!!!");
-            } else {
-                _isFin = true;
-            }
-            _order--;
         }
     }
     private void InputHexSystem() {
@@ -230,8 +248,9 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + 1
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY + 1) {
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY + 1) {
                             children.GetComponent<CharacterStat>()._hp -= 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _addDamage += 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
                         }
                     }
                 }
@@ -244,8 +263,9 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + 2
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
                             children.GetComponent<CharacterStat>()._hp -= 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _addDamage += 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
                         }
                     }
                 }
@@ -258,8 +278,9 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + 1
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY - 1) {
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY - 1) {
                             children.GetComponent<CharacterStat>()._hp -= 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _addDamage += 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
                         }
                     }
                 }
@@ -272,8 +293,9 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - 1
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY - 1) {
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY - 1) {
                             children.GetComponent<CharacterStat>()._hp -= 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _addDamage += 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
                         }
                     }
                 }
@@ -286,8 +308,9 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - 2
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
                             children.GetComponent<CharacterStat>()._hp -= 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _addDamage += 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
                         }
                     }
                 }
@@ -300,8 +323,9 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - 1
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY + 1) {
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY + 1) {
                             children.GetComponent<CharacterStat>()._hp -= 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                            _addDamage += 10 + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
                         }
                     }
                 }
@@ -329,9 +353,13 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3 || _reference == 5) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + _card[_cast, 1]
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY + _card[_cast, 1]) {
-                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY + _card[_cast, 1]) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
                             _card[_cast, 3] = 1;
+                            if (_card[_cast, 2] < 0) {
+                                _addDamage -= _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
+                                print(_addDamage);
+                            }
                         }
                     }
                 }
@@ -344,9 +372,13 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3 || _reference == 5) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + (_card[_cast, 1] * 2)
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
-                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
                             _card[_cast, 3] = 1;
+                            if (_card[_cast, 2] < 0) {
+                                _addDamage -= _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
+                                print(_addDamage);
+                            }
                         }
                     }
                 }
@@ -359,9 +391,13 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3 || _reference == 5) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX + _card[_cast, 1]
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY - _card[_cast, 1]) {
-                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY - _card[_cast, 1]) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
                             _card[_cast, 3] = 1;
+                            if (_card[_cast, 2] < 0) {
+                                _addDamage -= _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
+                                print(_addDamage);
+                            }
                         }
                     }
                 }
@@ -374,9 +410,13 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3 || _reference == 5) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - _card[_cast, 1]
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY - _card[_cast, 1]) {
-                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY - _card[_cast, 1]) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
                             _card[_cast, 3] = 1;
+                            if (_card[_cast, 2] < 0) {
+                                _addDamage -= _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
+                                print(_addDamage);
+                            }
                         }
                     }
                 }
@@ -389,9 +429,13 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3 || _reference == 5) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - (_card[_cast, 1] * 2)
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
-                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
                             _card[_cast, 3] = 1;
+                            if (_card[_cast, 2] < 0) {
+                                _addDamage -= _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
+                                print(_addDamage);
+                            }
                         }
                     }
                 }
@@ -404,9 +448,13 @@ public class HexMaster : MonoBehaviour {
                 if (_reference == 2 || _reference == 3 || _reference == 5) {
                     foreach (Transform children in this.transform) {
                         if (children.GetComponent<CharacterStat>()._pointX == _playerPointX - _card[_cast, 1]
-                        || children.GetComponent<CharacterStat>()._pointY == _playerPointY + _card[_cast, 1]) {
-                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] + PlayerStatus._attack - children.GetComponent<CharacterStat>()._defense;
+                        && children.GetComponent<CharacterStat>()._pointY == _playerPointY + _card[_cast, 1]) {
+                            children.GetComponent<CharacterStat>()._hp += _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
                             _card[_cast, 3] = 1;
+                            if (_card[_cast, 2] < 0) {
+                                _addDamage -= _card[_cast, 2] - PlayerStatus._attack + children.GetComponent<CharacterStat>()._defense;
+                                print(_addDamage);
+                            }
                         }
                     }
                 }
@@ -420,5 +468,9 @@ public class HexMaster : MonoBehaviour {
         for (int i = 0;i < 4;i++) {
             _card[i, 3] = 0;
         }
+    }
+    private void Score() {
+        PlayerStatus._hp = _player.GetComponent<CharacterStat>()._hp;
+        _score += 5 + _breakEnemy + (_addDamage / 10) - (_getDamage / 10) - (_turn / 5);
     }
 }

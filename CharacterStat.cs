@@ -13,6 +13,7 @@ public class CharacterStat : MonoBehaviour
     [SerializeField] public int _defense;//防御力
     [SerializeField] TextAsset _deckData;
     [SerializeField] private int _scanSubject = 5;//対象オブジェクトタイプ
+    [SerializeField] private int _exp;//経験値
     public int[,] _cardData;
     private string[] _allData;
     private string _deck;
@@ -41,7 +42,7 @@ public class CharacterStat : MonoBehaviour
                 _master.GetComponent<HexMaster>()._hex[_pointX, _pointY] = 2;
                 break;
             case 3://味方
-                _master.GetComponent<HexMaster>()._hex[_pointX, _pointY] = 3;
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 3;
                 break;
             case 5://プレイヤー
                 _level = PlayerStatus._revel;
@@ -67,6 +68,9 @@ public class CharacterStat : MonoBehaviour
         if (_count > 0) {
             if (_hp <= 0) {
                 gameObject.SetActive(false);//HPが0以下なら無効化
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                PlayerStatus._xp += _exp;
+                _master.GetComponent<HexMaster>()._breakEnemy++;
             }
             switch (_characterType) {
                 case 2://敵
@@ -89,7 +93,7 @@ public class CharacterStat : MonoBehaviour
             _count -= 1;
         }
         if (transform.position.x != 1.28f * (_pointX - 10) || transform.position.y != 1.448f * (_pointY - 5)) {
-            transform.position = Vector2.MoveTowards(transform.position, new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5)), 10 * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position, new Vector2(1.28f * (_pointX - 10), 1.448f * (_pointY - 5)), 15 * Time.deltaTime);
         }
     }
     private void Action() {
@@ -142,7 +146,7 @@ public class CharacterStat : MonoBehaviour
                                 break;
                             case 4:
                                 if (Mathf.Abs(_pointX - scanData.GetComponent<CharacterStat>()._pointX) == _cardData[i, 1]
-                                 && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == _cardData[i, 1]) {
+                                && Mathf.Abs(_pointY - scanData.GetComponent<CharacterStat>()._pointY) == _cardData[i, 1]) {
                                     _referenceObject = scanData;
                                     Spell(i);
                                     return;
@@ -174,6 +178,10 @@ public class CharacterStat : MonoBehaviour
     }
     private void Attack() {
         _referenceObject.GetComponent<CharacterStat>()._hp -= 10 + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+        if (_scanSubject == 5) {
+            _master.GetComponent<HexMaster>()._getDamage += 10 + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+            print(_master.GetComponent<HexMaster>()._getDamage);
+        }
     }
     private void Spell(int cast) {
         switch (_cardData[cast, 0]) {
@@ -182,12 +190,21 @@ public class CharacterStat : MonoBehaviour
                 break;
             case 2:
                 _referenceObject.GetComponent<CharacterStat>()._hp += _cardData[cast, 2] + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                if (_scanSubject == 5) {
+                    _master.GetComponent<HexMaster>()._getDamage -= _cardData[cast, 2] + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                }
                 break;
             case 3:
                 _referenceObject.GetComponent<CharacterStat>()._hp += _cardData[cast, 2] + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                if (_scanSubject == 5) {
+                    _master.GetComponent<HexMaster>()._getDamage -= _cardData[cast, 2] + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                }
                 break;
             case 4:
                 _referenceObject.GetComponent<CharacterStat>()._hp += _cardData[cast, 2] + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                if (_scanSubject == 5) {
+                    _master.GetComponent<HexMaster>()._getDamage -= _cardData[cast, 2] + _attack - _referenceObject.GetComponent<CharacterStat>()._defense;
+                }
                 break;
         }
         _cardData[cast, 3] = 1;
@@ -206,12 +223,14 @@ public class CharacterStat : MonoBehaviour
                     break;
                 } else if (_pointX + _pointY + 2 > 25) {
                     break;
-                } else if (GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] == 0) {
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
-                    _pointX += 1;
-                    _pointY += 1;
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX + 1, _pointY + 1] != 0) {
+                    Move(2);
+                    break;
                 }
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                _pointX += 1;
+                _pointY += 1;
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
                 break;
             case 2:
                 //配列を超過する場合は処理をしない
@@ -219,11 +238,13 @@ public class CharacterStat : MonoBehaviour
                     break;
                 } else if (_pointX + _pointY + 2 > 25 || _pointX - _pointY == 15) {
                     break;
-                } else if (GetComponentInParent<HexMaster>()._hex[_pointX + 2, _pointY] == 0) {
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
-                    _pointX += 2;
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX + 2, _pointY] != 0) {
+                    Move(3);
+                    break;
                 }
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                _pointX += 2;
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
                 break;
             case 3:
                 //配列を超過する場合は処理をしない
@@ -231,12 +252,14 @@ public class CharacterStat : MonoBehaviour
                     break;
                 } else if (_pointX - _pointY == 15) {
                     break;
-                } else if (GetComponentInParent<HexMaster>()._hex[_pointX + 1, _pointY - 1] == 0) {
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
-                    _pointX += 1;
-                    _pointY -= 1;
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX + 1, _pointY - 1] != 0) {
+                    Move(4);
+                    break;
                 }
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                _pointX += 1;
+                _pointY -= 1;
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
                 break;
             case 4:
                 //配列を超過する場合は処理をしない
@@ -244,12 +267,14 @@ public class CharacterStat : MonoBehaviour
                     break;
                 } else if (_pointX + _pointY - 2 < 5) {
                     break;
-                } else if (GetComponentInParent<HexMaster>()._hex[_pointX - 1, _pointY - 1] == 0) {
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
-                    _pointX -= 1;
-                    _pointY -= 1;
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX - 1, _pointY - 1] != 0) {
+                    Move(5);
+                    break;
                 }
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                _pointX -= 1;
+                _pointY -= 1;
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
                 break;
             case 5:
                 //配列を超過する場合は処理をしない
@@ -257,11 +282,13 @@ public class CharacterStat : MonoBehaviour
                     break;
                 } else if (_pointX + _pointY - 2 < 5 || _pointY - _pointX == 5) {
                     break;
-                } else if (GetComponentInParent<HexMaster>()._hex[_pointX - 2, _pointY] == 0) {
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
-                    _pointX -= 2;
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX - 2, _pointY] != 0) {
+                    Move(6);
+                    break;
                 }
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                _pointX -= 2;
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
                 break;
             case 6:
                 //配列を超過する場合は処理をしない
@@ -269,11 +296,14 @@ public class CharacterStat : MonoBehaviour
                     break;
                 } else if (_pointY - _pointX == 5) {
                     break;
-                } else if (GetComponentInParent<HexMaster>()._hex[_pointX - 1, _pointY + 1] == 0) {
-                    GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
-                    _pointX -= 1;
-                    _pointY += 1;
+                } else if (GetComponentInParent<HexMaster>()._hex[_pointX - 1, _pointY + 1] != 0) {
+                    Move(1);
+                    break;
                 }
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = 0;
+                _pointX -= 1;
+                _pointY += 1;
+                GetComponentInParent<HexMaster>()._hex[_pointX, _pointY] = _characterType;
                 break;
             default:
                 break;
