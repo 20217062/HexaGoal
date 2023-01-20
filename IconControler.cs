@@ -15,6 +15,10 @@ public class IconControler : MonoBehaviour
     [SerializeField] private GameObject _spell_two;
     [SerializeField] private GameObject _spell_three;
     [SerializeField] private GameObject _spell_four;
+    [SerializeField] private IconContainer _container;
+    private void Start() {
+
+    }
     void Update()
     {
         transform.position = _player.transform.position;

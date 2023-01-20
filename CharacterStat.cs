@@ -6,8 +6,8 @@ public class CharacterStat : MonoBehaviour
 {
     [SerializeField] private HexMaster _master;
     [SerializeField] private int _level;//レベル
-    [SerializeField] public int _hpMax;//最大体力
-    [SerializeField] public int _hp;//体力
+    [SerializeField] public float _hpMax;//最大体力
+    [SerializeField] public float _hp;//体力
     [SerializeField] private int _deckNumber;//デッキ番号
     [SerializeField] public int _attack;//攻撃力
     [SerializeField] public int _defense;//防御力
