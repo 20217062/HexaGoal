@@ -11,6 +11,4 @@ public class PlayerStatus : MonoBehaviour
     public static int _deckNo = 1;
     public static int _attack = 0;
     public static int _defense = 0;
-
-    //レベルアップしたいなぁ
 }

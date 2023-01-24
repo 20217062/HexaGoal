@@ -26,6 +26,10 @@ public class HexMaster : MonoBehaviour {
     public int _breakEnemy;
     #endregion
     void Awake() {
+        _turn = 0;
+        _addDamage = 0;
+        _getDamage = 0;
+        _breakEnemy = 0;
         _playerPointX = _player.GetComponent<CharacterStat>()._pointX;
         _playerPointY = _player.GetComponent<CharacterStat>()._pointY;
         _hex = new int[21, 11];//èâä˙âª
@@ -472,5 +476,13 @@ public class HexMaster : MonoBehaviour {
     private void Score() {
         PlayerStatus._hp = _player.GetComponent<CharacterStat>()._hp;
         _score += 5 + _breakEnemy + (_addDamage / 10) - (_getDamage / 10) - (_turn / 5);
+        while (PlayerStatus._revel * 12 <= PlayerStatus._xp) {
+            PlayerStatus._xp -= PlayerStatus._revel * 12;
+            PlayerStatus._revel += 1;
+            PlayerStatus._hpMax = 100 + (int)(PlayerStatus._revel * 25);
+            PlayerStatus._hp += 25;
+            PlayerStatus._attack = PlayerStatus._revel;
+            PlayerStatus._defense = PlayerStatus._revel / 2;
+        }
     }
 }
