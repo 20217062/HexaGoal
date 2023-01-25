@@ -19,7 +19,6 @@ public class HexMaster : MonoBehaviour {
     [SerializeField] private GameObject _player;
     #endregion
     #region ÉXÉRÉAïœêî
-    public int _score;
     private int _turn;
     private int _addDamage;
     public int _getDamage;
@@ -54,7 +53,6 @@ public class HexMaster : MonoBehaviour {
             if (_isFin) {
                 print("congratulations!!!");
                 Score();
-                print(_score);
                 SceneManager.LoadScene("Interlude");
             } else {
                 _isFin = true;
@@ -63,9 +61,8 @@ public class HexMaster : MonoBehaviour {
             _order--;
         }
         if (_player.GetComponent<CharacterStat>()._hp <= 0) {
-            Score();
-            print(_score);
             print("Game Over");
+            Score();
             SceneManager.LoadScene("GameOver");
         }
         if (Input.GetButtonDown("Submit")) {
@@ -475,7 +472,12 @@ public class HexMaster : MonoBehaviour {
     }
     private void Score() {
         PlayerStatus._hp = _player.GetComponent<CharacterStat>()._hp;
-        _score += 5 + _breakEnemy + (_addDamage / 10) - (_getDamage / 10) - (_turn / 5);
+        PlayerStatus._score += 500 + (_breakEnemy * 100) + (_addDamage * 10) - (_getDamage * 10) - (_turn * 50);
+        print(_breakEnemy);
+        print(_addDamage);
+        print(_getDamage);
+        print(_turn);
+        print(PlayerStatus._score);
         while (PlayerStatus._revel * 12 <= PlayerStatus._xp) {
             PlayerStatus._xp -= PlayerStatus._revel * 12;
             PlayerStatus._revel += 1;

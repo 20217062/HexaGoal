@@ -9,6 +9,7 @@ public class PlayerStatus : MonoBehaviour
     public static int _hpMax = 100;
     public static float _hp = 100;
     public static int _deckNo = 1;
-    public static int _attack = 0;
+    public static int _attack = 1;
     public static int _defense = 0;
+    public static int _score = 0;
 }
