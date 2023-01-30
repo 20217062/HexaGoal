@@ -481,7 +481,7 @@ public class HexMaster : MonoBehaviour {
         while (PlayerStatus._revel * 12 <= PlayerStatus._xp) {
             PlayerStatus._xp -= PlayerStatus._revel * 12;
             PlayerStatus._revel += 1;
-            PlayerStatus._hpMax = 100 + (int)(PlayerStatus._revel * 25);
+            PlayerStatus._hpMax = 75 + (int)(PlayerStatus._revel * 25);
             PlayerStatus._hp += 25;
             PlayerStatus._attack = PlayerStatus._revel;
             PlayerStatus._defense = PlayerStatus._revel / 2;

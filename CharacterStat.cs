@@ -65,6 +65,9 @@ public class CharacterStat : MonoBehaviour
         }
     }
     private void Update() {
+        if (_hp > _hpMax) {
+            _hp = _hpMax;//HP‚ªÅ‘å’l‚ðã‰ñ‚Á‚Ä‚¢‚é‚È‚çÅ‘åHP‚É•â³
+        }
         if (_count > 0) {
             if (_hp <= 0) {
                 gameObject.SetActive(false);//HP‚ª0ˆÈ‰º‚È‚ç–³Œø‰»
@@ -86,9 +89,6 @@ public class CharacterStat : MonoBehaviour
                     break;
                 default:
                     break;
-            }
-            if (_hp > _hpMax) {
-                _hp = _hpMax;//HP‚ªÅ‘å’l‚ðã‰ñ‚Á‚Ä‚¢‚é‚È‚çÅ‘åHP‚É•â³
             }
             _count -= 1;
         }

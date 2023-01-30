@@ -19,15 +19,15 @@ public class InterludeMenu : MonoBehaviour
     [SerializeField] private Slider _hpBer;
     private bool _statusFlag;
     [SerializeField] private GameObject _statusUI;
+    [SerializeField] private Text _text;
     private void Start() {
         _lv.text = PlayerStatus._revel.ToString();
         _at.text = PlayerStatus._attack.ToString();
         _df.text = PlayerStatus._defense.ToString();
         _hp.text = PlayerStatus._hp.ToString();
-        _hpBer.value = PlayerStatus._hp / PlayerStatus._hpMax;
     }
-    void Update()
-    {
+    void Update() {
+        _hpBer.value = PlayerStatus._hp / PlayerStatus._hpMax;
         if (_statusFlag) {
             _statusUI.transform.position = Vector2.MoveTowards(_statusUI.transform.position, new Vector2(300, 540), 10);
         } else {
@@ -37,15 +37,20 @@ public class InterludeMenu : MonoBehaviour
             float instantInput = Mathf.Atan2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")) * -180 / Mathf.PI;
             if (Mathf.Abs(instantInput) < 45) {
                 _squareInputArray = 1;
+                _text.text = "Next Battle";
             } else if (instantInput >= -135 && instantInput < -45) {
                 _squareInputArray = 2;
+                _text.text = "Spell Edit";
             } else if (Mathf.Abs(instantInput) >= 135) {
                 _squareInputArray = 3;
+                _text.text = "Quit Game";
             } else if (instantInput > 45 && instantInput <= 135) {
                 _squareInputArray = 4;
+                _text.text = "Open Status";
             }
         } else {
             _squareInputArray = 0;
+            _text.text = "Command?";
         }
         if (Input.GetButtonDown("Submit")) {
             switch (_squareInputArray) {
@@ -53,7 +58,7 @@ public class InterludeMenu : MonoBehaviour
                     SceneManager.LoadSceneAsync("Battle");
                     break;
                 case 2:
-                    //SceneManager.LoadSceneAsync("");
+                    SceneManager.LoadSceneAsync("SpellChanger");
                     break;
                 case 3:
                     SceneManager.LoadSceneAsync("GameOver");
