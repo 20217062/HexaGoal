@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using System;
 using System.IO;
 using System.Text;
@@ -14,6 +15,8 @@ public class GameOver : MonoBehaviour
     private FtpWebRequest _ftpRequest = null;
     private Stream _ftpStream = null;
     private const int BUFFERSIZE = 2048;
+    [SerializeField]private Text _score;
+    [SerializeField] private TextAsset _readText;
 
     public GameOver(string hostIP, string userName, string password) {
         _host = hostIP;
@@ -21,8 +24,8 @@ public class GameOver : MonoBehaviour
         _pass = password;
     }
     private string[] _rankText;
-    [SerializeField] private TextAsset _readText;
     private void Start() {
+        _score.text ="Score:" + PlayerStatus._score.ToString();
         _rankText = new string[10];
         _rankText = _readText.text.Split('\n');
         for (int i = 9; i >= 0; i--) {
@@ -37,14 +40,15 @@ public class GameOver : MonoBehaviour
                 break;
             }
         }
-        string path = Application.persistentDataPath + "/Ranking.txt";
+        string path = Directory.GetCurrentDirectory() + @"/Ranking.txt";
         for (int i = 0; i <= 9; i++) {
-            if (i == 0) {
-                File.WriteAllText(path, _rankText[i].ToString() + "\n");
-            } else {
-                File.AppendAllText(path, _rankText[i].ToString() + "\n");
+                if (i == 0) {
+                    File.WriteAllText(path, _rankText[i].ToString() + "\n");
+                } else {
+                    File.AppendAllText(path, _rankText[i].ToString() + "\n");
+                }
+
             }
-        }
         print(File.ReadAllText(path));
 
         TestUP();
@@ -91,10 +95,8 @@ public class GameOver : MonoBehaviour
     string _stCurrentDir = System.IO.Directory.GetCurrentDirectory();
     public void TestUP() {
         GameOver ftp = new GameOver(@"ftp://sch02270612.php.xdomain.jp", @"sch02270612.php.xdomain.jp", @"1234567890Th");
-        string stCurrentDir = System.IO.Directory.GetCurrentDirectory();
-        Debug.Log(stCurrentDir);
-        string filename = System.IO.Path.GetFileName(Application.persistentDataPath + "/Ranking.txt");
-        ftp.Upload("/Ranking.txt", filename);
+        string filename = "Ranking.txt";
+        ftp.Upload(filename, Directory.GetCurrentDirectory() + @"/Ranking.txt");
         ftp = null;
     }
 }

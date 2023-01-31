@@ -40,7 +40,7 @@ public class InterludeMenu : MonoBehaviour
                 _text.text = "Next Battle";
             } else if (instantInput >= -135 && instantInput < -45) {
                 _squareInputArray = 2;
-                _text.text = "Spell Edit";
+                _text.text = "Unimplemented";
             } else if (Mathf.Abs(instantInput) >= 135) {
                 _squareInputArray = 3;
                 _text.text = "Quit Game";
@@ -58,7 +58,7 @@ public class InterludeMenu : MonoBehaviour
                     SceneManager.LoadSceneAsync("Battle");
                     break;
                 case 2:
-                    SceneManager.LoadSceneAsync("SpellChanger");
+
                     break;
                 case 3:
                     SceneManager.LoadSceneAsync("GameOver");
